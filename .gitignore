@@ -1,1 +1,13 @@
 monitor
+*.o
+*.out
+
+.vscode/
+
+node_modules/
+dist/
+build/
+.env
+
+.DS_Store
+Thumbs.db
