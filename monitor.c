@@ -3,12 +3,23 @@
 #include <string.h>
 #include <unistd.h>
 
+typedef struct {
+    unsigned long long user, nice, system, idle, iowait, irq, softirq, steal;
+} CPUData;
+
 void get_mem_usage();
+void get_cpu_ticks(CPUData *data);
+double calculate_cpu_usage();
+
 
 int main(){
     while(1){
+        double usage = calculate_cpu_usage();
+        printf("CPU usage: %.2f%%\n", usage);
+
         get_mem_usage();
-        sleep(2);
+        printf("----------------\n");
+        sleep(1);
     }
     return 0;
 }
@@ -16,7 +27,7 @@ int main(){
 void get_mem_usage(){
     FILE *fp = fopen("/proc/meminfo", "r");
     if(fp == NULL){
-        perror("Chyba pri otvarani /proc/meminfo");
+        perror("Error while openning /proc/meminfo");
         return;
     }
 
@@ -37,4 +48,33 @@ void get_mem_usage(){
 
     printf("RAM USAGE: %ld / %ld KB (%.2f%%)\n", used, memTotal, percent);
 
+}
+
+void get_cpu_ticks(CPUData *data){
+    FILE *fp = fopen("/proc/stat", "r");
+    if(fp == NULL) return;
+
+    char line[256];
+    fgets(line, sizeof(line), fp);
+
+    sscanf(line, "cpu %llu %llu %llu %llu %llu %llu %llu %llu", &data->user, &data->nice, &data->system, &data->idle, &data->iowait, &data->irq, &data->softirq, &data->steal);
+    
+    fclose(fp);
+}
+
+double calculate_cpu_usage() {
+    CPUData t1, t2;
+    get_cpu_ticks(&t1);
+    usleep(200000);
+    get_cpu_ticks(&t2);
+
+    unsigned long long total1 = t1.user + t1.nice + t1.system + t1.idle + t1.iowait + t1.irq + t1.softirq + t1.steal;
+    unsigned long long total2 = t2.user + t2.nice + t2.system + t2.idle + t2.iowait + t2.irq + t2.softirq + t2.steal;
+
+    unsigned long long difference_total = total2 - total1;
+    unsigned long long difference_idle = t2.idle - t1.idle;
+
+    if(difference_total == 0) return 0.0;
+
+    return (1.0 -((double)difference_idle / difference_total)) * 100.0;
 }
