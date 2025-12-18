@@ -1,13 +1,20 @@
+# binaries and objects
 monitor
 *.o
 *.out
 
+# editors
 .vscode/
 
+# dependencies (recursive)
 node_modules/
+**/node_modules/
+
+# build outputs
 dist/
 build/
-.env
 
+# environment and system files
+.env
 .DS_Store
 Thumbs.db
