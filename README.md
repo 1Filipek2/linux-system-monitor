@@ -1,33 +1,66 @@
-# linux system monitor aquarium
+# Linux System Monitor Aquarium
 
-![dashboard](docs/dashboard.png)
+![Dashboard](docs/dashboard.png)
 
-this project is a real-time system resource monitor for linux that visualizes system processes as an aquarium. it consists of a high-performance c backend, a node.js relay server, and a react frontend.
+This project is a real-time system resource monitor for Linux that visualizes system processes as an aquarium. It consists of a high-performance C backend, a Node.js relay server, and a React frontend.
 
-## architecture
+## Architecture
 
-the system operates using a three-tier pipeline:
-1. **backend (c)**: reads system metrics directly from /proc/stat and /proc/meminfo. it outputs real-time data as a json stream to stdout.
-2. **relay (node.js)**: receives the json stream via unix pipe and broadcasts data to clients using socket.io.
-3. **frontend (react)**: a web dashboard that renders processes as a dynamic aquarium, featuring real-time charts and prioritized process sorting.
+The system operates using a three-tier pipeline:
 
-## prerequisites
+1. **Backend (C)**
+   Reads system metrics directly from `/proc/stat` and `/proc/meminfo`. Outputs real-time data as a JSON stream to `stdout`.
 
-- gcc compiler
-- node.js (v18 or higher)
-- npm or yarn
-- linux environment (for /proc filesystem access)
+2. **Relay (Node.js)**
+   Receives the JSON stream via a Unix pipe and broadcasts data to clients using Socket.IO.
 
-## project structure
+3. **Frontend (React)**
+   A web dashboard that renders processes as a dynamic aquarium, featuring real-time charts and prioritized process sorting.
 
-- `monitor.c`: c source code for system telemetry.
-- `backend/server.js`: node.js websocket relay server.
-- `frontend/`: react application source code.
-- `start.sh`: automation script for system execution.
+## Prerequisites
 
-## installation
+* GCC compiler
+* Node.js (v18 or higher)
+* npm or yarn
+* Linux environment (required for `/proc` access)
 
-1. **frontend dependencies**
+## Project Structure
+
+* `monitor.c` – C source code for system telemetry
+* `backend/server.js` – Node.js WebSocket relay server
+* `frontend/` – React application source code
+* `start.sh` – Automation script for system execution
+
+## Installation
+
+Follow these steps to set up the project locally:
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/1Filipek2/linux-system-monitor.git
+   cd linux-system-monitor
+   ```
+
+2. **Install frontend dependencies**
+
    ```bash
    cd frontend
    npm install
+   cd ..
+   ```
+
+3. **Install backend dependencies**
+
+   ```bash
+   cd backend
+   npm install
+   cd ..
+   ```
+
+## Usage
+
+```bash
+chmod +x start.sh
+./start.sh
+```
