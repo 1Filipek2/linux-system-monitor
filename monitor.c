@@ -41,11 +41,10 @@ double get_mem_usage(){
     }
     fclose(fp);
 
+    if(memTotal == 0) return 0.0;
+
     long used = memTotal - memAvailable;
-    double percent = (double)used / memTotal * 100;
-
-    printf("RAM USAGE: %ld / %ld KB (%.2f%%)\n", used, memTotal, percent);
-
+    return ((double)used / memTotal) * 100;
 }
 
 void get_cpu_ticks(CPUData *data){
