@@ -7,29 +7,27 @@ typedef struct {
     unsigned long long user, nice, system, idle, iowait, irq, softirq, steal;
 } CPUData;
 
-void get_mem_usage();
+double get_mem_usage();
 void get_cpu_ticks(CPUData *data);
 double calculate_cpu_usage();
 
 
 int main(){
     while(1){
-        double usage = calculate_cpu_usage();
-        printf("CPU usage: %.2f%%\n", usage);
+        double cpu = calculate_cpu_usage();
+        double ram = get_mem_usage();
 
-        get_mem_usage();
-        printf("----------------\n");
+        printf("{\"cpu\": %.2f, \"ram\": %.2f}\n", cpu, ram);
+        
+        fflush(stdout);
         sleep(1);
     }
     return 0;
 }
 
-void get_mem_usage(){
+double get_mem_usage(){
     FILE *fp = fopen("/proc/meminfo", "r");
-    if(fp == NULL){
-        perror("Error while openning /proc/meminfo");
-        return;
-    }
+    if(fp == NULL) return 0.0;
 
     char line[256];
     long memTotal = 0, memFree = 0, memAvailable = 0;
@@ -65,7 +63,7 @@ void get_cpu_ticks(CPUData *data){
 double calculate_cpu_usage() {
     CPUData t1, t2;
     get_cpu_ticks(&t1);
-    usleep(200000);
+    usleep(100000);
     get_cpu_ticks(&t2);
 
     unsigned long long total1 = t1.user + t1.nice + t1.system + t1.idle + t1.iowait + t1.irq + t1.softirq + t1.steal;
