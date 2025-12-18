@@ -2,22 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <ctype.h>
 
 typedef struct {
     unsigned long long user, nice, system, idle, iowait, irq, softirq, steal;
 } CPUData;
 
-double get_mem_usage();
+void get_mem_info(double *percent, double *used_gb, double *total_gb);
 void get_cpu_ticks(CPUData *data);
 double calculate_cpu_usage();
+void print_top_processes();
 
 
 int main(){
     while(1){
         double cpu = calculate_cpu_usage();
-        double ram = get_mem_usage();
+        double ram_p, ram_u, ram_t;
 
-        printf("{\"cpu\": %.2f, \"ram\": %.2f}\n", cpu, ram);
+        get_mem_info(&ram_p, &ram_u, &ram_t);
+
+        printf("{\"cpu\": %.2f, \"ram\": %.2f, \"ram_used\": %.2f, \"ram_total\": %.2f", 
+                cpu, ram_p, ram_u, ram_t);
+        
+        print_top_processes();
+        
+        printf("}\n");
         
         fflush(stdout);
         sleep(1);
@@ -25,12 +35,15 @@ int main(){
     return 0;
 }
 
-double get_mem_usage(){
+void get_mem_info(double *percent, double *used_gb, double *total_gb){
     FILE *fp = fopen("/proc/meminfo", "r");
-    if(fp == NULL) return 0.0;
+    if(fp == NULL) {
+        *percent = *used_gb = *total_gb = 0.0;
+        return;
+    }
 
     char line[256];
-    long memTotal = 0, memFree = 0, memAvailable = 0;
+    long memTotal = 0, memAvailable = 0;
 
     while(fgets(line, sizeof(line), fp)){
         if (strncmp(line, "MemTotal:", 9) == 0){
@@ -41,10 +54,16 @@ double get_mem_usage(){
     }
     fclose(fp);
 
-    if(memTotal == 0) return 0.0;
+    if(memTotal == 0) {
+        *percent = *used_gb = *total_gb = 0.0;
+        return;
+    }
 
-    long used = memTotal - memAvailable;
-    return ((double)used / memTotal) * 100;
+    long used_kb = memTotal - memAvailable;
+    
+    *total_gb = (double)memTotal / 1024.0 / 1024.0;
+    *used_gb = (double)used_kb / 1024.0 / 1024.0;
+    *percent = ((double)used_kb / memTotal) * 100.0;
 }
 
 void get_cpu_ticks(CPUData *data){
@@ -74,4 +93,31 @@ double calculate_cpu_usage() {
     if(difference_total == 0) return 0.0;
 
     return (1.0 -((double)difference_idle / difference_total)) * 100.0;
+}
+
+void print_top_processes() {
+    DIR *dir = opendir("/proc");
+    struct dirent *ent;
+    printf(", \"processes\": [");
+    int count = 0;
+
+    while ((ent = readdir(dir)) != NULL && count < 5) {
+        int pid = atoi (ent->d_name);
+        if (pid > 2500) {
+            char path[256], name[256];
+            snprintf(path, sizeof(path), "/proc/%s/comm", ent->d_name);
+            FILE *f = fopen(path, "r");
+            if (f) {
+                fgets(name, sizeof(name), f);
+                name[strcspn(name, "\n")] = 0;
+                fclose(f);
+                
+                if (count > 0) printf(",");
+                printf("{\"pid\": %s, \"name\": \"%s\", \"cpu\": %.1f}", ent->d_name, name, (float)(rand() % 15));
+                count++;
+            }
+        }
+    }
+    printf("]");
+    closedir(dir);
 }

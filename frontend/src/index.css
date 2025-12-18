@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #000000; 
+  color: white;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+}
+
+@keyframes swim {
+  from { transform: translateX(0); }
+  to { transform: translateX(100px); }
+}
+
+@keyframes swim-reverse {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100px); }
+}
+
+@keyframes bubble {
+  0% { 
+    transform: translateY(0) scale(0.5); 
+    opacity: 0; 
+  }
+  20% { opacity: 0.6; }
+  100% { 
+    transform: translateY(-200px) scale(1.5); 
+    opacity: 0; 
+  }
+}
+
+.animate-swim {
+  animation: swim 7s infinite alternate ease-in-out;
+}
+
+.animate-swim-reverse {
+  animation: swim-reverse 8s infinite alternate ease-in-out;
+}
+
+.animate-bubble {
+  animation: bubble 4s ease-out infinite;
+}
