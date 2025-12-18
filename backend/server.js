@@ -1,28 +1,26 @@
 const express = require('express');
 const http = require('http');
-const { server } = require("socket.io");
+const { Server: socketserver } = require("socket.io");
 const readline = require('readline');
 
 const app = express();
-const httpserver = http.createserver(app);
-const io = new server(httpserver, {
+const httpserver = http.createServer(app);
+const io = new socketserver(httpserver, {
     cors: { origin: "*" }
 });
 
-const rl = readline.createinterface({
+const rl = readline.createInterface({
     input: process.stdin,
     terminal: false
 });
 
 rl.on('line', (line) => {
     try {
-        const jsondata = json.parse(line);
-        
+        const jsondata = JSON.parse(line);
         console.log("data received from monitor:", jsondata);
-        
         io.emit('stats', jsondata);
     } catch (e) {
-        // silent catch for malformed json
+        // silent catch
     }
 });
 
