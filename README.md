@@ -1,5 +1,7 @@
 # linux system monitor aquarium
 
+![dashboard](docs/dashboard.png)
+
 this project is a real-time system resource monitor for linux that visualizes system processes as an aquarium. it consists of a high-performance c backend, a node.js relay server, and a react frontend.
 
 ## architecture
