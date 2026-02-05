@@ -17,7 +17,6 @@ const rl = readline.createInterface({
 rl.on('line', (line) => {
     try {
         const jsondata = JSON.parse(line);
-        console.log("data received from monitor:", jsondata);
         io.emit('stats', jsondata);
     } catch (e) {
         // silent catch

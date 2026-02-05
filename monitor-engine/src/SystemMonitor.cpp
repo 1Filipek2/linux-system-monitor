@@ -46,18 +46,24 @@ SystemMonitor::RAMInfo SystemMonitor::getMemoryInfo() {
     RAMInfo info = {0.0, 0.0, 0.0};
     std::ifstream file("/proc/meminfo");
     std::string line;
-    long memTotal = 0, memAvaible = 0;
+    long memTotal = 0, memAvailable = 0;
 
     while (std::getline(file, line)) {
-        if(line.find("MemTotal:") == 0) {
-            sscanf(line.c_str(), "MemTotal: %ld", &memTotal);
-        } else if(line.find("MemAvailable:") == 0) {
-            sscanf(line.c_str(), "MemAvailble: %ld", &memAvaible);
+        std::stringstream ss(line);
+        std::string label;
+        long long value;
+        
+        ss >> label >> value;
+
+        if (label == "MemTotal:") {
+            memTotal = value;
+        } else if (label == "MemAvailable:") {
+            memAvailable = value;
         }
     }
 
     if(memTotal > 0) {
-        long used_kb = memTotal - memAvaible;
+        long used_kb = memTotal - memAvailable;
         info.total_gb = static_cast<double>(memTotal) / 1024.0 / 1024.0;
         info.used_gb = static_cast<double>(used_kb) / 1024.0 / 1024.0;
         info.percent = (static_cast<double>(used_kb) / memTotal) * 100.0;
