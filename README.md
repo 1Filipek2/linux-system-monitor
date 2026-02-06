@@ -2,33 +2,34 @@
 
 ![Dashboard](docs/dashboard.png)
 
-This project is a real-time system resource monitor for Linux that visualizes system processes as an aquarium. It consists of a high-performance C backend, a Node.js relay server, and a React frontend.
+This project is a real-time system resource monitor for Linux that visualizes system processes as an aquarium. It consists of a high-performance C++ backend, a Node.js relay server, and a React + TypeScript frontend.
 
 ## Architecture
 
 The system operates using a three-tier pipeline:
 
-1. **Backend (C)**
+1. **Backend (C++17)**
    Reads system metrics directly from `/proc/stat` and `/proc/meminfo`. Outputs real-time data as a JSON stream to `stdout`.
 
 2. **Relay (Node.js)**
    Receives the JSON stream via a Unix pipe and broadcasts data to clients using Socket.IO.
 
-3. **Frontend (React)**
+3. **Frontend (React + TSX)**
    A web dashboard that renders processes as a dynamic aquarium, featuring real-time charts and prioritized process sorting.
 
 ## Prerequisites
 
-* GCC compiler
+* G++ compiler (C++17 support)
 * Node.js (v18 or higher)
 * npm or yarn
 * Linux environment (required for `/proc` access)
 
 ## Project Structure
 
-* `monitor.c` – C source code for system telemetry
+* `monitor-engine/` – C++ source code for system telemetry
 * `backend/server.js` – Node.js WebSocket relay server
-* `frontend/` – React application source code
+* `frontend/` – React application source code (TypeScript)
+* `legacy/` - Original C implementation
 * `start.sh` – Automation script for system execution
 
 ## Installation
