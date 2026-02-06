@@ -24,5 +24,7 @@ class SystemMonitor {
         };
 
         RAMInfo getMemoryInfo();
+
+        bool killProcess(int pid);
 };
 #endif

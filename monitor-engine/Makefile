@@ -1,10 +1,25 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Iinclude
-SRC = src/main.cpp src/SystemMonitor.cpp src/ProcessProvider.cpp
-OUT = monitor_bin
+CXXFLAGS = -std=c++17 -Wall -Wextra
+INCLUDES = -I./include
+SRC_DIR = src
+OBJ_DIR = obj
+BIN = monitor_bin
 
-all:
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(OUT)
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+
+all: $(BIN)
+
+$(BIN): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(BIN) $(OBJECTS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 clean:
-	rm -f $(OUT)
+	rm -rf $(OBJ_DIR) $(BIN)
+
+.PHONY: all clean

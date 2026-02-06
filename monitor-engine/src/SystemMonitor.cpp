@@ -2,6 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <signal.h>
 
 SystemMonitor::SystemMonitor() {
     lastCPUStats = readCPUStats();
@@ -15,7 +18,7 @@ CPUData SystemMonitor::readCPUStats() {
     if (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string cpuLabel;
-        ss >> cpuLabel >> data.irq >> data.nice >> data.system >> data.idle
+        ss >> cpuLabel >> data.user >> data.nice >> data.system >> data.idle
            >> data.iowait >> data.irq >> data.softirq >> data.steal;
     }
     return data;
@@ -46,7 +49,7 @@ SystemMonitor::RAMInfo SystemMonitor::getMemoryInfo() {
     RAMInfo info = {0.0, 0.0, 0.0};
     std::ifstream file("/proc/meminfo");
     std::string line;
-    long memTotal = 0, memAvailable = 0;
+    long long memTotal = 0, memAvailable = 0;
 
     while (std::getline(file, line)) {
         std::stringstream ss(line);
@@ -63,10 +66,25 @@ SystemMonitor::RAMInfo SystemMonitor::getMemoryInfo() {
     }
 
     if(memTotal > 0) {
-        long used_kb = memTotal - memAvailable;
+        long long used_kb = memTotal - memAvailable;
         info.total_gb = static_cast<double>(memTotal) / 1024.0 / 1024.0;
         info.used_gb = static_cast<double>(used_kb) / 1024.0 / 1024.0;
-        info.percent = (static_cast<double>(used_kb) / memTotal) * 100.0;
+        info.percent = (static_cast<double>(used_kb) / static_cast<double>(memTotal)) * 100.0;
     }
     return info;
+}
+
+bool SystemMonitor::killProcess(int pid) {
+    struct stat info;
+    char path[256];
+    snprintf(path, sizeof(path), "/proc/%d", pid);
+
+    if (stat(path, &info) == 0) {
+        if (info.st_uid == getuid()) {
+            if (kill(pid, SIGTERM) == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

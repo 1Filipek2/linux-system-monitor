@@ -11,6 +11,7 @@ const io = new socketserver(httpserver, {
 
 const rl = readline.createInterface({
     input: process.stdin,
+    output: process.stdout, 
     terminal: false
 });
 
@@ -19,14 +20,21 @@ rl.on('line', (line) => {
         const jsondata = JSON.parse(line);
         io.emit('stats', jsondata);
     } catch (e) {
-        // silent catch
     }
 });
 
+io.on('connection', (socket) => {
+    socket.on('kill_process', (data) => {
+        if (data && data.pid) {
+            process.stdout.write(`kill ${data.pid}\n`);
+        }
+    });
+});
+
 process.stdin.on('end', () => {
-    console.log('input stream pipe closed');
+    process.exit();
 });
 
 httpserver.listen(4000, () => {
-    console.log('relay server running on http://localhost:4000');
+    console.error('relay server running on http://localhost:4000');
 });

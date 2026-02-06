@@ -1,5 +1,5 @@
-#ifndef PROCESS_PROVIDER_CPP
-#define PROCESS_PROVIDER_CPP
+#ifndef PROCESS_PROVIDER_HPP
+#define PROCESS_PROVIDER_HPP
 
 #include <vector>
 #include <string>
@@ -8,6 +8,7 @@ struct ProcessInfo {
     int pid;
     std::string name;
     double cpuUsage;
+    bool canKill;
 };
 
 class ProcessProvider {
