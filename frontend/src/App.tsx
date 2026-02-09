@@ -153,7 +153,7 @@ function App() {
           </ResponsiveContainer>
         </div>
 
-        <div className="relative w-full h-[450px] bg-gradient-to-b from-[#0a192f] to-black border-2 border-blue-900/30 rounded-xl overflow-hidden shadow-2xl">
+        <div className="relative w-full h-122.5 bg-linear-to-b from-[#0a192f] to-black border-2 border-blue-900/30 rounded-xl overflow-hidden shadow-2xl">
           {sortedProcesses.map((proc, index) => {
             const fishTypes = ['🐠','🐬', '🐟', '🦈', '🐡'];
             const fishEmoji = fishTypes[index % fishTypes.length];
